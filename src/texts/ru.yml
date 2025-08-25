@@ -1,0 +1,165 @@
+hello_username: "👋Привет, {username}!"
+our_channels: "⚡Наши каналы⚡"
+bikemarket: "Веломаркет"
+general_chat: "Общий чат"
+rules: "Правила"
+rules_hint: "Текст редактируется админом позже"
+
+# Кнопки главного меню
+btn_create_ad: "❇️Создать объявление"
+btn_language: "🌏Язык"
+btn_settings: "Настройки"
+btn_profile: "Личный профиль"
+btn_my_ads: "📖Мои Объявления"
+btn_payments: "💵Платежи"
+btn_admin_payments: "Обработка платежей"
+back: "⬅️Назад"
+cancel: "🛑Отмена"
+done: "Готово"
+
+# Язык
+choose_language: "Выберите язык"
+lang_ru: "🇷🇺 Русский"
+lang_ky: "🇰🇬 Кыргызский"
+language_set_ru: "Язык переключен на русский. 🇷🇺"
+language_set_ky: "Тил кыргызча болуп коюлду. 🇰🇬"
+
+# Главное
+main_menu_title: "Главное меню"
+
+# Тип объявления
+ad_choose_type: "Выберите тип:"
+ad_type_want: "👀Ищу"
+ad_type_sell: "💰Продаю"
+ad_type_trade: "🔄Обмен"
+
+# Категории
+ad_choose_category: "Выберите категорию:"
+ad_cat_bike: "Велосипед"
+ad_cat_parts: "Компоненты"
+ad_cat_accessories: "Аксессуары"
+ad_cat_clothes: "Одежда"
+ad_cat_shoes: "Обувь"
+
+# Подкатегории — велосипеды (новый порядок)
+ad_choose_subcategory_bike: "Выберите подкатегорию велосипеда:"
+ad_subcat_fix: "Фикс"
+ad_subcat_mtb: "МТБ"
+ad_subcat_kids: "Детский"
+ad_subcat_road: "Шоссе"
+ad_subcat_gravel: "Гревел"
+ad_subcat_city: "Городской"
+ad_subcat_other: "Другое"
+
+# Подкатегории — компоненты
+ad_choose_subcategory_parts: "Выберите подкатегорию компонентов:"
+comp_subcat_frames: "Рамы"
+comp_subcat_forks: "Вилки"
+comp_subcat_brakes: "Тормоза"
+comp_subcat_wheels: "Колёса"
+comp_subcat_bars: "Палки"
+comp_subcat_crankset: "Система"
+comp_subcat_saddle: "Седло"
+comp_subcat_other: "Другое"
+
+# Шаги формы
+ad_ask_name: "Введите наименование товара:"
+ad_ask_short: "📌Краткое описание (1–2 строки):"
+ad_ask_price: "💰Цена в KGS (числом):"
+ad_ask_delivery: "🚚 Выберите вариант доставки"
+ad_choose_city: "🏙Выберите город:"
+ad_ask_photos: "Отправьте 1–10 фотографий товара (только фото)."
+ad_photos_limit: "Добавлено максимальное количество фото (10)."
+ad_ask_photos_only: "📷Пожалуйста, отправьте фото товара."
+ad_photo_added: "Фото добавлено ({n}/10)."
+
+# Справочники
+cond_new: "🤙Новый"
+cond_used: "🤏Б/У"
+city_bishkek: "🇰🇬Бишкек"
+city_osh: "🇰🇬Ош"
+delivery_no_ship: "🙅 Не отправлю"
+delivery_country: "🌎 По стране"
+delivery_caption_no_ship: "Доставка: нет"
+delivery_caption_country: "Доставка: по стране"
+cap_line_type_sell: "Продаю"
+
+# Предпросмотр/публикация
+preview_controls: "Предпросмотр. Всё верно?"
+published_ok: "✅ Объявление опубликовано!"
+publish_channel_not_set: "❌ Не задан канал для публикации."
+publish_no_rights: "❌ Боту не хватает прав для публикации в канале."
+publish_bad_request: "Ошибка Telegram: {error}"
+publish_unknown_error: "Неизвестная ошибка: {error}"
+ad_cancelled: "Черновик удалён. Начните заново, когда будете готовы."
+
+# Линки в посте
+post_link_post: "Разместить объявление"
+post_link_write_seller: "Написать продавцу"
+
+# Платежи — пользователь
+payments_price: "Прайс-лист:\n\n✨ Разместить ещё одно объявление — 30 KGS\n📌 Закреп в канале — 50 KGS\n💠 Подписка без ограничений (на месяц) — 200 KGS"
+pay_30_btn: "Оплатить 30"
+pay_50_btn: "Оплатить 50"
+pay_200_btn: "Оплатить 200"
+payments_upload_prompt: "💰 Отправьте скриншот платежа (фото) или файл чека (PDF и др.).\n\nРеквизиты: 996552212024 — МБАНК | О.Деньги"
+payments_expect_receipt: "Ожидаю чек оплаты в виде фото или документа."
+payments_cancelled: "Платёж отменён."
+payments_user_ok: "🔔 Платеж принят. Проверка администратором займёт немного времени, после чего придёт уведомление."
+payments_user_done: "✅ Платёж успешно обработан, услуга выполнена."
+payments_user_rejected: "❌ К сожалению, платёж отклонён администратором. Проверьте чек и попробуйте снова."
+
+# Платежи — админ
+payments_admin_new: "Новый платеж ждёт обработки."
+admin_payments_empty: "Нет заявок на обработку."
+payments_admin_item: "<b>Платёж #{pid}</b>\nТип: {kind}\nСумма: {amount} KGS\nПользователь: {uname} (ID: {uid})"
+admin_reject_btn: "Отменить"
+payments_admin_reject_confirm: "Напишите КАПСОМ <b>ПОДТВЕРДИТЬ</b> для окончательной отмены."
+payments_admin_reject_need_caps: "Введите ровно <b>ПОДТВЕРДИТЬ</b>."
+payments_admin_rejected_ok: "Платёж отклонён."
+payments_admin_approved: "Платёж подтверждён. Эффект применён."
+
+# Мои объявления
+myads_title: "Ваши объявления:"
+myads_empty: "У вас пока нет опубликованных объявлений."
+myads_no_title: "Без названия"
+myads_actions: "Выберите действие:"
+btn_sold: "Продано"
+btn_delete: "Удалить"
+myads_marked_sold: "Отмечено как ПРОДАНО."
+myads_deleted: "Объявление удалено."
+
+# Админ — пользователи/лимиты/правила
+admin_users_btn: "Пользователи"
+admin_rules_btn: "Изменить правила"
+admin_users_prompt: "Введите username (@user) или ID пользователя."
+admin_user_not_found: "Пользователь не найден."
+admin_edit_lang_btn: "Изменить язык"
+admin_limit_btn: "Лимит"
+admin_choose_lang: "Выберите язык для пользователя."
+admin_lang_updated: "Язык пользователя обновлён."
+admin_limit_prompt: "Выберите тип лимита для пользователя:"
+admin_limit_unlimited: "Неограниченное (на месяц)"
+admin_limit_quota: "Уникальное (в месяц)"
+admin_limit_reset: "Сброс к стандарту"
+admin_limit_quota_ask: "Введите целое число N — сколько объявлений в месяц."
+admin_limit_quota_invalid: "Введите положительное целое число."
+admin_limit_set_unlimited: "Установлен безлимит на 30 дней."
+admin_limit_set_quota: "Установлена квота {n} объявлений на 30 дней."
+admin_limit_reset_ok: "Лимит сброшен к стандартному (1/неделю)."
+admin_rules_prompt: "Отправьте новый текст правил (HTML разрешён)."
+admin_rules_updated: "Правила обновлены."
+
+profile_title: "👤Профиль"
+profile_lang: "🗣 Язык"
+profile_total: "📝 Всего объявлений"
+profile_next_in: "⏳ Следующая публикация через"
+back_to_menu: "⬅️ Назад в меню"
+
+myads_not_found: "Объявление не найдено."
+
+publish: "Опубликовать"
+
+settings_stub: "Раздел в разработке. Здесь позже появятся админ-инструменты."
+
+limit_exceeded: "Лимит публикаций — 1 раз в 7 дней. Следующая публикация через: {when}"

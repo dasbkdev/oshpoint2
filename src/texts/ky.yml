@@ -1,0 +1,166 @@
+hello_username: "👋Салам, {username}!"
+our_channels: "⚡Биздин каналдар⚡"
+bikemarket: "Веломаркет"
+general_chat: "Жалпы чат"
+rules: "Эрежелер"
+rules_hint: "Текстти админ кийинчерээк түзөтөт"
+
+# Кнопки главного меню
+btn_create_ad: "❇️Жарыя түзүү"
+btn_language: "🌏Тил"
+btn_settings: "Жөндөөлөр"
+btn_profile: "Жеке профиль"
+btn_my_ads: "📖Менин жарыяларым"
+btn_payments: "💵Төлөмдөр"
+btn_admin_payments: "Төлөмдөрдү иштетүү"
+back: "⬅️Артка"
+cancel: "🛑Жокко чыгаруу"
+done: "Бүттү"
+
+# Язык
+choose_language: "Тилди тандаңыз"
+lang_ru: "🇷🇺 Орусча"
+lang_ky: "🇰🇬 Кыргызча"
+language_set_ru: "Тил орусча болуп коюлду. 🇷🇺"
+language_set_ky: "Тил кыргызча болуп коюлду. 🇰🇬"
+
+# Главное
+main_menu_title: "Башкы меню"
+
+# Тип объявления
+ad_choose_type: "Түрүн тандаңыз:"
+ad_type_want: "👀Издейм"
+ad_type_sell: "💰Сатам"
+ad_type_trade: "🔄Алмашам"
+
+# Категории
+ad_choose_category: "Категорияны тандаңыз:"
+ad_cat_bike: "Велосипед"
+ad_cat_parts: "Компоненттер"
+ad_cat_accessories: "Аксессуарлар"
+ad_cat_clothes: "Кийимдер"
+ad_cat_shoes: "Бут кийим"
+
+# Подкатегории — велосипеддер (жаңы тартип)
+ad_choose_subcategory_bike: "Велосипеддин подкатегориясын тандаңыз:"
+ad_subcat_fix: "Фикс"
+ad_subcat_mtb: "МТБ"
+ad_subcat_kids: "Балдар"
+ad_subcat_road: "Шоссе"
+ad_subcat_gravel: "Гревел"
+ad_subcat_city: "Шаардык"
+ad_subcat_other: "Башка"
+
+# Подкатегории — компоненттер
+ad_choose_subcategory_parts: "Компоненттердин подкатегориясын тандаңыз:"
+comp_subcat_frames: "Рамалар"
+comp_subcat_forks: "Айры"
+comp_subcat_brakes: "Тормоздор"
+comp_subcat_wheels: "Дөңгөлөктөр"
+comp_subcat_bars: "Палкылар"
+comp_subcat_crankset: "Система"
+comp_subcat_saddle: "Отургуч"
+comp_subcat_other: "Башка"
+
+# Шаги формы
+ad_ask_name: "Товардын атын жазыңыз:"
+ad_ask_short: "📌Кыскача сүрөттөмө (1–2 сап):"
+ad_ask_price: "💰Баасы KGS (сан менен):"
+ad_ask_delivery: "🚚 Жеткирүү ыкмасын тандаңыз"
+ad_choose_city: "🏙Шаарды тандаңыз:"
+ad_ask_photos: "Товардын 1–10 фотосун жибериңиз (бир гана фото)."
+ad_photos_limit: "Максималдуу 10 фото кошулду."
+ad_ask_photos_only: "📷Сураныч, фото жибериңиз."
+ad_photo_added: "Фото кошулду ({n}/10)."
+
+# Справочники
+cond_new: "🤙Жаңы"
+cond_used: "🤏Колдонулган"
+city_bishkek: "🇰🇬Бишкек"
+city_osh: "🇰🇬Ош"
+delivery_no_ship: "🙅 Жибербейм"
+delivery_country: "🌎 Өлкө боюнча"
+delivery_caption_no_ship: "Жеткирүү: жок"
+delivery_caption_country: "Жеткирүү: өлкө боюнча"
+cap_line_type_sell: "Сатам"
+
+# Предпросмотр/публикация
+preview_controls: "Алдын ала кароо. Баары туурабы?"
+published_ok: "✅ Жарыя жарыяланды!"
+publish_channel_not_set: "❌ Канал орнотулган эмес."
+publish_no_rights: "❌ Каналга жазууга укук жок."
+publish_bad_request: "Telegram ката: {error}"
+publish_unknown_error: "Белгисиз ката: {error}"
+ad_cancelled: "Каралама өчүрүлдү. Даяр болгондо кайра баштаңыз."
+
+# Линки в посте
+post_link_post: "Жарнама жайгаштыруу"
+post_link_write_seller: "Сатуучу менен жазышуу"
+
+# Платежи — колдонуучу
+payments_price: "Прайс-лист:\n\n✨ Дагы бир жарыя жайгаштыруу — 30 KGS\n📌 Каналда бекитүү — 50 KGS\n💠 Чексиз жазылуу (1 ай) — 200 KGS"
+pay_30_btn: "30 төлөө"
+pay_50_btn: "50 төлөө"
+pay_200_btn: "200 төлөө"
+payments_upload_prompt: "💰 Төлөмдүн скриншотун (сүрөт) же чек файлын (PDF ж.б.) жибериңиз.\n\nРеквизиттер: 996552212024 — МБАНК | О.Деньги"
+payments_expect_receipt: "Төлөмдүн чегин сүрөт же документ түрүндө күтүүдөм."
+payments_cancelled: "Төлөм жокко чыгарылды."
+payments_user_ok: "🔔 Төлөм кабыл алынды. Админ текшерип, кабар берет."
+payments_user_done: "✅ Төлөм ийгиликтүү иштелди, кызмат аткарылды."
+payments_user_rejected: "❌ Тилекке каршы, төлөм админ тарабынан четке кагылды. Текшерип кайра аракет кылыңыз."
+
+# Платежи — админ
+payments_admin_new: "Жаңы төлөм иштетүүнү күтүп турат."
+admin_payments_empty: "Иштетиле турган төлөмдөр жок."
+payments_admin_item: "<b>Төлөм #{pid}</b>\nТүрү: {kind}\nСуммасы: {amount} KGS\nКолдонуучу: {uname} (ID: {uid})"
+admin_reject_btn: "Жокко чыгаруу"
+payments_admin_reject_confirm: "Толук капс менен <b>ПОДТВЕРДИТЬ</b> деп жазыңыз."
+payments_admin_reject_need_caps: "Так <b>ПОДТВЕРДИТЬ</b> деп жазыңыз."
+payments_admin_rejected_ok: "Төлөм жокко чыгарылды."
+payments_admin_approved: "Төлөм тастыкталды. Эффект колдонулду."
+
+# Мои объявления
+myads_title: "Сиздин жарнамалар:"
+myads_empty: "Азырынча жарыялар жок."
+myads_no_title: "Аталышсыз"
+myads_actions: "Аракетти тандаңыз:"
+btn_sold: "САТЫЛДЫ"
+btn_delete: "Өчүрүү"
+myads_marked_sold: "САТЫЛДЫ деп белгиленди."
+myads_deleted: "Жарнама өчүрүлдү."
+
+# Профиль
+profile_title: "👤Профиль"
+profile_lang: "🗣 Тил"
+profile_total: "📝 Жалпы жарыялар"
+profile_next_in: "⏳ Кийинки жарыяга чейин"
+back_to_menu: "⬅️ Менюга кайтуу"
+
+# Админ — колдонуучулар/лимит/эрежелер
+admin_users_btn: "Колдонуучулар"
+admin_rules_btn: "Эрежелерди өзгөртүү"
+admin_users_prompt: "Колдонуучунун username (@user) же ID жазыңыз."
+admin_user_not_found: "Колдонуучу табылган жок."
+admin_edit_lang_btn: "Тилди өзгөртүү"
+admin_limit_btn: "Лимит"
+admin_choose_lang: "Колдонуучу үчүн тилди тандаңыз."
+admin_lang_updated: "Колдонуучунун тили жаңыртылды."
+admin_limit_prompt: "Колдонуучу үчүн лимитти тандаңыз:"
+admin_limit_unlimited: "Чексиз (1 айга)"
+admin_limit_quota: "Уникалдуу (айына)"
+admin_limit_reset: "Стандартка кайтаруу"
+admin_limit_quota_ask: "Айына N жарыя санын жазыңыз (бүтүн сан)."
+admin_limit_quota_invalid: "Позитивдүү бүтүн сан жазыңыз."
+admin_limit_set_unlimited: "30 күнгө чексиз коюлду."
+admin_limit_set_quota: "30 күнгө {n} жарыя коюлду."
+admin_limit_reset_ok: "Стандартка кайтарылды (жумага 1)."
+admin_rules_prompt: "Эрежелердин жаңы текстин жибериңиз (HTML болот)."
+admin_rules_updated: "Эрежелер жаңыртылды."
+
+myads_not_found: "Жарнама табылган жок."
+
+publish: "Жарыялоо"
+
+settings_stub: "Бул бөлүм иштелүүдө. Кийин админ куралдары кошулат."
+
+limit_exceeded: "Жарыяларды жайгаштыруу чеги — жумасына 1 жолу. Кийинкиси: {when}"
