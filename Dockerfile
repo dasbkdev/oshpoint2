@@ -1,30 +1,27 @@
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    TZ=Asia/Bishkek
 
-# системные утилиты для сборки некоторых пакетов
+# Базовые инструменты (минимум)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
- && rm -rf /var/lib/apt/lists/*
-
-# отдельный venv внутри образа
-RUN python -m venv /opt/venv
-ENV VIRTUAL_ENV=/opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# ставим зависимости
+# Зависимости
 COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# код
+# Проект
 COPY src ./src
 COPY alembic.ini ./alembic.ini
-# migrations могут отсутствовать — копируем, если есть
-# если у тебя есть папка migrations — раскомментируй следующую строку
-# COPY migrations ./migrations
+COPY migrations ./migrations
 
-# на запуск — python из venv
-CMD ["python", "-m", "src.main"]
+# Точка входа
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+CMD ["/entrypoint.sh"]

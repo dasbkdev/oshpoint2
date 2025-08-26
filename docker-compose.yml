@@ -3,35 +3,19 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: oshpoint-bot
     restart: unless-stopped
+    env_file:
+      - .env          # <-- используем ваш .env как есть
     environment:
-      BOT_TOKEN: ${BOT_TOKEN}
-      ADMIN_ID: ${ADMIN_ID}
-      DATABASE_URL: ${DATABASE_URL:-sqlite+aiosqlite:///data/oshpoint.db}
-      DEFAULT_LANG: ${DEFAULT_LANG:-ru}
-      BIKE_CHANNEL: ${BIKE_CHANNEL:-}
-      BIKE_TOPIC_ID: ${BIKE_TOPIC_ID:-}
-      GENERAL_CHAT_USERNAME: ${GENERAL_CHAT_USERNAME:-}
-      ALEMBIC_AUTOUPGRADE: ${ALEMBIC_AUTOUPGRADE:-0}
-      TZ: ${TZ:-UTC}
+      # дополнительные дефолты (если в .env не задано)
+      TZ: ${TZ:-Asia/Bishkek}
+      ALEMBIC_AUTOUPGRADE: ${ALEMBIC_AUTOUPGRADE:-1}
+      # дублируем на всякий случай альтернативные имена из вашего кода
+      BIKE_CHANNEL: ${BIKE_CHANNEL:-${BOT_BIKE_CHANNEL:-}}
+      BIKE_TOPIC_ID: ${BIKE_TOPIC_ID:-${BOT_BIKE_TOPIC_ID:-}}
     volumes:
-      - bot_data:/app/data
-      # Если у тебя есть alembic и миграции — можно примонтировать (опционально):
-      # - ./alembic.ini:/app/alembic.ini:ro
-      # - ./migrations:/app/migrations:ro
-    command: >-
-      bash -lc "
-        if [ -d migrations ] && [ -f alembic.ini ] && [ \"${ALEMBIC_AUTOUPGRADE:-0}\" = \"1\" ]; then
-          echo '>> alembic upgrade head';
-          alembic upgrade head || true;
-        fi;
-        exec python -m src.main
-      "
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-
-volumes:
-  bot_data:
+      - ./data:/app/data   # SQLite-файл сохранится вне контейнера
+    ports:
+      # если не нужен внешний порт, можно удалить. оставляю пусто.
+      - "0:0"

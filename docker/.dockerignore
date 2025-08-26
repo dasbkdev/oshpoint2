@@ -1,0 +1,17 @@
+.git
+.gitignore
+.vscode
+.idea
+__pycache__/
+*.pyc
+*.pyo
+.mypy_cache
+.pytest_cache
+.env
+env/
+venv/
+dist/
+build/
+data/*.db-shm
+data/*.db-wal
+data/*.db-journal
