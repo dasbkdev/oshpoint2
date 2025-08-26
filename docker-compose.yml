@@ -6,16 +6,12 @@ services:
     container_name: oshpoint-bot
     restart: unless-stopped
     env_file:
-      - .env          # <-- используем ваш .env как есть
+      - .env
     environment:
-      # дополнительные дефолты (если в .env не задано)
       TZ: ${TZ:-Asia/Bishkek}
       ALEMBIC_AUTOUPGRADE: ${ALEMBIC_AUTOUPGRADE:-1}
-      # дублируем на всякий случай альтернативные имена из вашего кода
+      # подстраховка по именам каналов
       BIKE_CHANNEL: ${BIKE_CHANNEL:-${BOT_BIKE_CHANNEL:-}}
       BIKE_TOPIC_ID: ${BIKE_TOPIC_ID:-${BOT_BIKE_TOPIC_ID:-}}
     volumes:
-      - ./data:/app/data   # SQLite-файл сохранится вне контейнера
-    ports:
-      # если не нужен внешний порт, можно удалить. оставляю пусто.
-      - "0:0"
+      - ./data:/app/data

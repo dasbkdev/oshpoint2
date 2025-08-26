@@ -1,27 +1,30 @@
+# syntax=docker/dockerfile:1.7
 FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    TZ=Asia/Bishkek
+    PIP_NO_CACHE_DIR=1
 
-# Базовые инструменты (минимум)
+# (опционально) системные зависимости — можно убрать, если не нужны
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Зависимости
+# Ставим зависимости
 COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Проект
+# Копируем код
 COPY src ./src
 COPY alembic.ini ./alembic.ini
-COPY migrations ./migrations
+COPY alembic ./alembic
 
-# Точка входа
+# entrypoint
 COPY docker/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-CMD ["/entrypoint.sh"]
+ENV TZ=Asia/Bishkek
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["python", "-m", "src.main"]

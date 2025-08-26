@@ -6,6 +6,7 @@ from typing import List, Optional, Tuple
 from datetime import datetime, timedelta, timezone
 import sqlalchemy as sa
 from sqlalchemy.orm import selectinload
+from sqlalchemy.exc import IntegrityError
 
 from .models import (
     User,
@@ -17,7 +18,6 @@ from .models import (
     Payment,
     AdStatusEnum,
 )
-
 
 # --------- helpers: timezone-aware now/compare ---------
 def _utcnow() -> datetime:
@@ -95,9 +95,11 @@ class Repository:
                 AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT
             )
             await session.execute(sa.delete(AdPhoto).where(AdPhoto.draft_id.in_(subq)))
-            await session.execute(sa.delete(AdDraft).where(
-                AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT
-            ))
+            await session.execute(
+                sa.delete(AdDraft).where(
+                    AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT
+                )
+            )
             await session.commit()
 
     async def create_or_get_user(
@@ -107,17 +109,30 @@ class Repository:
         first_name: Optional[str],
         last_name: Optional[str],
     ) -> User:
+        """
+        Идемпотентное создание/обновление пользователя.
+        Закрывает гонку INSERT при одновременных апдейтах (UNIQUE(telegram_id)).
+        """
         async with self.sessionmaker() as session:
+            # 1) быстрый путь: уже есть
             user = await session.scalar(sa.select(User).where(User.telegram_id == telegram_id))
             if user:
-                # обновим актуальные поля
-                user.username = username
-                user.first_name = first_name
-                user.last_name = last_name
-                await session.commit()
-                await session.refresh(user)
+                changed = False
+                if user.username != username:
+                    user.username = username
+                    changed = True
+                if user.first_name != first_name:
+                    user.first_name = first_name
+                    changed = True
+                if user.last_name != last_name:
+                    user.last_name = last_name
+                    changed = True
+                if changed:
+                    await session.commit()
+                    await session.refresh(user)
                 return user
 
+            # 2) пробуем вставить
             user = User(
                 telegram_id=telegram_id,
                 username=username,
@@ -125,9 +140,31 @@ class Repository:
                 last_name=last_name,
             )
             session.add(user)
-            await session.commit()
-            await session.refresh(user)
-            return user
+            try:
+                await session.commit()
+                await session.refresh(user)
+                return user
+            except IntegrityError:
+                # 3) кто-то успел вставить параллельно — откат и перечитываем
+                await session.rollback()
+                user = await session.scalar(sa.select(User).where(User.telegram_id == telegram_id))
+                if not user:
+                    # если ошибка не из-за уникальности, пробрасываем дальше
+                    raise
+                changed = False
+                if user.username != username:
+                    user.username = username
+                    changed = True
+                if user.first_name != first_name:
+                    user.first_name = first_name
+                    changed = True
+                if user.last_name != last_name:
+                    user.last_name = last_name
+                    changed = True
+                if changed:
+                    await session.commit()
+                    await session.refresh(user)
+                return user
 
     async def get_user_by_username(self, username: str) -> Optional[User]:
         """
@@ -169,9 +206,9 @@ class Repository:
         async with self.sessionmaker() as session:
             return await session.scalar(
                 sa.select(AdDraft)
-                .where(AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT)
-                .order_by(AdDraft.updated_at.desc())
-                .limit(1)
+                    .where(AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT)
+                    .order_by(AdDraft.updated_at.desc())
+                    .limit(1)
             )
 
     async def create_draft(self, user_id: int, ad_type: str) -> AdDraft:
@@ -210,8 +247,8 @@ class Repository:
         async with self.sessionmaker() as session:
             return await session.scalar(
                 sa.select(AdDraft)
-                .where(AdDraft.id == draft_id)
-                .options(selectinload(AdDraft.photos))
+                    .where(AdDraft.id == draft_id)
+                    .options(selectinload(AdDraft.photos))
             )
 
     async def delete_draft(self, draft_id: int, only_if_status_draft: bool = True) -> bool:
@@ -277,10 +314,10 @@ class Repository:
         async with self.sessionmaker() as session:
             res = await session.execute(
                 sa.select(AdPublish, AdDraft)
-                .join(AdDraft, AdDraft.id == AdPublish.draft_id)
-                .options(selectinload(AdDraft.photos))  # жадно подгружаем фото
-                .where(AdPublish.user_id == user_id)
-                .order_by(AdPublish.id.desc())
+                    .join(AdDraft, AdDraft.id == AdPublish.draft_id)
+                    .options(selectinload(AdDraft.photos))  # жадно подгружаем фото
+                    .where(AdPublish.user_id == user_id)
+                    .order_by(AdPublish.id.desc())
             )
             return list(res.all())
 
@@ -289,10 +326,10 @@ class Repository:
         async with self.sessionmaker() as session:
             res = await session.execute(
                 sa.select(AdPublish, AdDraft)
-                .join(AdDraft, AdDraft.id == AdPublish.draft_id)
-                .options(selectinload(AdDraft.photos))
-                .where(AdPublish.id == publish_id)
-                .limit(1)
+                    .join(AdDraft, AdDraft.id == AdPublish.draft_id)
+                    .options(selectinload(AdDraft.photos))
+                    .where(AdPublish.id == publish_id)
+                    .limit(1)
             )
             row = res.first()
             return (row[0], row[1]) if row else None
@@ -332,7 +369,7 @@ class Repository:
     async def get_or_create_default_limit(self, user_id: int) -> UserLimit:
         """
         Стандарт: квота 1 публикация / 7 дней. Если срок истёк — сбрасываем.
-        Все времени — aware UTC.
+        Все времена — aware UTC.
         """
         now = _utcnow()
         async with self.sessionmaker() as session:
@@ -473,10 +510,6 @@ class Repository:
             ul.quota_used += 1
             await session.commit()
 
-    async def reset_limit_to_default(self, user_id: int):
-        """Алиас, чтобы совпадало с вызовами из admin.py."""
-        return await self.reset_to_weekly(user_id)
-
     async def get_publish_availability(self, user_id: int) -> tuple[bool, int]:
         """
         Возвращает (can_publish, seconds_left).
@@ -498,7 +531,6 @@ class Repository:
         if exp:
             left = int(max(0, (exp - now).total_seconds()))
         return False, left
-
 
     # ======================= PAYMENTS ===================
 
