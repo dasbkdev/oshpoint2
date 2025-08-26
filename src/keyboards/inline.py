@@ -94,7 +94,7 @@ def preview_keyboard(t) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text=t("publish"), callback_data="preview:publish"),
-            InlineKeyboardButton(text=t("cancel"), callback_data="preview:cancel"),
+            InlineKeyboardButton(text=t("cancel"),  callback_data="preview:cancel"),
         ],
     ])
 

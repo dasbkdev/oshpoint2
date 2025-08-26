@@ -6,7 +6,7 @@ from typing import Optional
 from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from ..db.repo import Repository
 from ..keyboards.reply import main_menu_kb, back_only_kb
 from ..services.i18n_filters import TextKey
@@ -177,3 +177,22 @@ async def open_settings(message: Message, t, repo: Optional[Repository] = None, 
         [InlineKeyboardButton(text=t("btn_admin_payments"), callback_data="admin:payments")],
     ])
     await message.answer(t("settings_stub"), reply_markup=kb)
+
+@router.message(F.text.regexp(r"^/start\s+contact_(\d+)$"))
+async def start_contact_link(message: Message, t) -> None:
+    # Пользователь пришёл из канала по deep-link: /start contact_<seller_id>
+    import re
+    m = re.match(r"^/start\s+contact_(\d+)$", (message.text or "").strip())
+    if not m:
+        return
+    seller_id = int(m.group(1))
+
+    kb = InlineKeyboardBuilder()
+    # В ЛС ссылка tg://user?id=... работает стабильно
+    kb.button(text=t("post_link_write_seller"), url=f"tg://user?id={seller_id}")
+    kb.adjust(1)
+
+    await message.answer(
+        "Откройте чат с продавцом по кнопке ниже:",
+        reply_markup=kb.as_markup()
+    )

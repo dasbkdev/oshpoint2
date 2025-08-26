@@ -85,6 +85,21 @@ class Repository:
 
     # ======================= USERS ======================
 
+    async def clear_user_drafts(self, user_id: int) -> None:
+        """
+        Полностью удаляет все черновики пользователя (и фото) со статусом DRAFT.
+        Нужен, чтобы новые объявления начинались «с нуля» и фото не тянулись.
+        """
+        async with self.sessionmaker() as session:
+            subq = sa.select(AdDraft.id).where(
+                AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT
+            )
+            await session.execute(sa.delete(AdPhoto).where(AdPhoto.draft_id.in_(subq)))
+            await session.execute(sa.delete(AdDraft).where(
+                AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT
+            ))
+            await session.commit()
+
     async def create_or_get_user(
         self,
         telegram_id: int,

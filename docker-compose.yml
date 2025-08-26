@@ -1,0 +1,37 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      ADMIN_ID: ${ADMIN_ID}
+      DATABASE_URL: ${DATABASE_URL:-sqlite+aiosqlite:///data/oshpoint.db}
+      DEFAULT_LANG: ${DEFAULT_LANG:-ru}
+      BIKE_CHANNEL: ${BIKE_CHANNEL:-}
+      BIKE_TOPIC_ID: ${BIKE_TOPIC_ID:-}
+      GENERAL_CHAT_USERNAME: ${GENERAL_CHAT_USERNAME:-}
+      ALEMBIC_AUTOUPGRADE: ${ALEMBIC_AUTOUPGRADE:-0}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - bot_data:/app/data
+      # Если у тебя есть alembic и миграции — можно примонтировать (опционально):
+      # - ./alembic.ini:/app/alembic.ini:ro
+      # - ./migrations:/app/migrations:ro
+    command: >-
+      bash -lc "
+        if [ -d migrations ] && [ -f alembic.ini ] && [ \"${ALEMBIC_AUTOUPGRADE:-0}\" = \"1\" ]; then
+          echo '>> alembic upgrade head';
+          alembic upgrade head || true;
+        fi;
+        exec python -m src.main
+      "
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  bot_data:

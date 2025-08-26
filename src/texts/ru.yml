@@ -29,9 +29,9 @@ main_menu_title: "Главное меню"
 
 # Тип объявления
 ad_choose_type: "Выберите тип:"
-ad_type_want: "👀Ищу"
-ad_type_sell: "💰Продаю"
-ad_type_trade: "🔄Обмен"
+ad_type_want: "👀 Ищу"
+ad_type_sell: "💰 Продаю"
+ad_type_trade: "🔄 Обмен"
 
 # Категории
 ad_choose_category: "Выберите категорию:"
@@ -74,16 +74,18 @@ ad_ask_photos_only: "📷Пожалуйста, отправьте фото то�
 ad_photo_added: "Фото добавлено ({n}/10)."
 
 # Справочники
-cond_new: "🤙Новый"
-cond_used: "🤏Б/У"
-city_bishkek: "🇰🇬Бишкек"
-city_osh: "🇰🇬Ош"
+cond_new: "🤙 Новый"
+cond_used: "🤏 Б/У"
+city_bishkek: "🇰🇬 Бишкек"
+city_osh: "🇰🇬 Ош"
 delivery_no_ship: "🙅 Не отправлю"
 delivery_country: "🌎 По стране"
 delivery_caption_no_ship: "Доставка: нет"
 delivery_caption_country: "Доставка: по стране"
 cap_line_type_sell: "Продаю"
 
+ad_ask_condition: "Состояние товара:"
+sold_label: "❌ ПРОДАНО"
 # Предпросмотр/публикация
 preview_controls: "Предпросмотр. Всё верно?"
 published_ok: "✅ Объявление опубликовано!"
@@ -94,8 +96,8 @@ publish_unknown_error: "Неизвестная ошибка: {error}"
 ad_cancelled: "Черновик удалён. Начните заново, когда будете готовы."
 
 # Линки в посте
-post_link_post: "Разместить объявление"
-post_link_write_seller: "Написать продавцу"
+post_link_post: " Разместить объявление"
+post_link_write_seller: " Написать продавцу"
 
 # Платежи — пользователь
 payments_price: "Прайс-лист:\n\n✨ Разместить ещё одно объявление — 30 KGS\n📌 Закреп в канале — 50 KGS\n💠 Подписка без ограничений (на месяц) — 200 KGS"

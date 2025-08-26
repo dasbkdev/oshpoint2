@@ -29,9 +29,9 @@ main_menu_title: "Башкы меню"
 
 # Тип объявления
 ad_choose_type: "Түрүн тандаңыз:"
-ad_type_want: "👀Издейм"
-ad_type_sell: "💰Сатам"
-ad_type_trade: "🔄Алмашам"
+ad_type_want: "👀 Издейм"
+ad_type_sell: "💰 Сатам"
+ad_type_trade: "🔄 Алмашам"
 
 # Категории
 ad_choose_category: "Категорияны тандаңыз:"
@@ -40,6 +40,9 @@ ad_cat_parts: "Компоненттер"
 ad_cat_accessories: "Аксессуарлар"
 ad_cat_clothes: "Кийимдер"
 ad_cat_shoes: "Бут кийим"
+
+ad_ask_condition: "Товардын абалы:"
+sold_label: "❌ САТЫЛДЫ"
 
 # Подкатегории — велосипеддер (жаңы тартип)
 ad_choose_subcategory_bike: "Велосипеддин подкатегориясын тандаңыз:"
@@ -74,10 +77,10 @@ ad_ask_photos_only: "📷Сураныч, фото жибериңиз."
 ad_photo_added: "Фото кошулду ({n}/10)."
 
 # Справочники
-cond_new: "🤙Жаңы"
-cond_used: "🤏Колдонулган"
-city_bishkek: "🇰🇬Бишкек"
-city_osh: "🇰🇬Ош"
+cond_new: "🤙 Жаңы"
+cond_used: "🤏 Колдонулган"
+city_bishkek: "🇰🇬 Бишкек"
+city_osh: "🇰🇬 Ош"
 delivery_no_ship: "🙅 Жибербейм"
 delivery_country: "🌎 Өлкө боюнча"
 delivery_caption_no_ship: "Жеткирүү: жок"
@@ -94,8 +97,8 @@ publish_unknown_error: "Белгисиз ката: {error}"
 ad_cancelled: "Каралама өчүрүлдү. Даяр болгондо кайра баштаңыз."
 
 # Линки в посте
-post_link_post: "Жарнама жайгаштыруу"
-post_link_write_seller: "Сатуучу менен жазышуу"
+post_link_post: "💎 Жарнама жайгаштыруу"
+post_link_write_seller: "✍️ Сатуучу менен жазышуу"
 
 # Платежи — колдонуучу
 payments_price: "Прайс-лист:\n\n✨ Дагы бир жарыя жайгаштыруу — 30 KGS\n📌 Каналда бекитүү — 50 KGS\n💠 Чексиз жазылуу (1 ай) — 200 KGS"

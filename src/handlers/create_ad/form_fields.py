@@ -23,8 +23,9 @@ async def set_name(message: Message, repo: Repository, t, state: FSMContext) -> 
 async def set_short_desc(message: Message, repo: Repository, t, state: FSMContext) -> None:
     draft_id = (await state.get_data()).get("draft_id")
     await repo.update_draft(draft_id, short_desc=(message.text or "").strip())
-    await state.set_state(AdCreation.Price)
-    await message.answer(t("ad_ask_price"))
+    # ▶ теперь спрашиваем состояние товара
+    await state.set_state(AdCreation.Condition)
+    await message.answer(t("ad_ask_condition"), reply_markup=inline_kb.condition_keyboard(t))
 
 @router.message(AdCreation.Price)
 async def set_price(message: Message, repo: Repository, t, state: FSMContext) -> None:
@@ -38,7 +39,9 @@ async def set_price(message: Message, repo: Repository, t, state: FSMContext) ->
 
     draft = await repo.get_draft(draft_id)
     ad_type = (draft.type or "").lower() if draft else ""
-    is_search = ad_type in {"buy", "find", "search", "looking"}
+    # было: {"buy","find","search","looking"}
+    is_search = ad_type == "want"
+
 
     if is_search:
         await state.set_state(AdCreation.City)
@@ -100,3 +103,13 @@ async def receive_document_photo(message: Message, repo: Repository, t, state: F
 @router.message(AdCreation.Photos)
 async def wrong_photo(message: Message, t) -> None:
     await message.answer(t("ad_ask_photos_only"))
+
+@router.callback_query(F.data.startswith("cond:"), AdCreation.Condition)
+async def choose_condition(call: CallbackQuery, repo: Repository, t, state: FSMContext) -> None:
+    await call.answer()
+    cond = call.data.split(":")[1]  # new | used
+    draft_id = (await state.get_data()).get("draft_id")
+    await repo.update_draft(draft_id, condition=cond)
+
+    await state.set_state(AdCreation.Price)
+    await call.message.edit_text(t("ad_ask_price"))
