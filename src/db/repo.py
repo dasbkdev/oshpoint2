@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple
 from datetime import datetime, timedelta, timezone
 import sqlalchemy as sa
 from sqlalchemy.orm import selectinload
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 
 from .models import (
     User,
@@ -23,14 +23,11 @@ from .models import (
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
-
 def _to_aware_utc(dt: datetime | None) -> datetime | None:
     if dt is None:
         return None
-    # если наивный — помечаем как UTC
     if dt.tzinfo is None or dt.tzinfo.utcoffset(dt) is None:
         return dt.replace(tzinfo=timezone.utc)
-    # если с зоной — приводим к UTC
     return dt.astimezone(timezone.utc)
 
 
@@ -38,13 +35,11 @@ class Repository:
     """Единая точка доступа к БД."""
 
     def __init__(self, sessionmaker):
-        # AsyncSession factory (async_sessionmaker[AsyncSession])
-        self.sessionmaker = sessionmaker
+        self.sessionmaker = sessionmaker  # async_sessionmaker[AsyncSession]
 
     # ===================== SETTINGS =====================
 
     async def init_default_settings(self) -> Settings:
-        """Гарантирует наличие строки настроек."""
         async with self.sessionmaker() as session:
             st = await session.scalar(sa.select(Settings).limit(1))
             if st:
@@ -59,7 +54,6 @@ class Repository:
         async with self.sessionmaker() as session:
             return await session.scalar(sa.select(Settings).limit(1))
 
-    # совместимость с хендлерами: set_rules/update_rules
     async def set_rules(self, text: str) -> None:
         await self.update_rules(text)
 
@@ -86,10 +80,6 @@ class Repository:
     # ======================= USERS ======================
 
     async def clear_user_drafts(self, user_id: int) -> None:
-        """
-        Полностью удаляет все черновики пользователя (и фото) со статусом DRAFT.
-        Нужен, чтобы новые объявления начинались «с нуля» и фото не тянулись.
-        """
         async with self.sessionmaker() as session:
             subq = sa.select(AdDraft.id).where(
                 AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT
@@ -110,67 +100,32 @@ class Repository:
         last_name: Optional[str],
     ) -> User:
         """
-        Идемпотентное создание/обновление пользователя.
-        Закрывает гонку INSERT при одновременных апдейтах (UNIQUE(telegram_id)).
+        Идемпотентный UPSERT (SQLite ON CONFLICT DO UPDATE) по уникальному telegram_id.
+        Обновляет username/first_name/last_name, сохраняет текущий lang.
+        Полностью устраняет гонки и IntegrityError.
         """
         async with self.sessionmaker() as session:
-            # 1) быстрый путь: уже есть
-            user = await session.scalar(sa.select(User).where(User.telegram_id == telegram_id))
-            if user:
-                changed = False
-                if user.username != username:
-                    user.username = username
-                    changed = True
-                if user.first_name != first_name:
-                    user.first_name = first_name
-                    changed = True
-                if user.last_name != last_name:
-                    user.last_name = last_name
-                    changed = True
-                if changed:
-                    await session.commit()
-                    await session.refresh(user)
-                return user
-
-            # 2) пробуем вставить
-            user = User(
+            stmt = sqlite_insert(User).values(
                 telegram_id=telegram_id,
                 username=username,
                 first_name=first_name,
                 last_name=last_name,
+            ).on_conflict_do_update(
+                index_elements=[User.telegram_id],
+                set_={
+                    "username": sa.bindparam("username"),
+                    "first_name": sa.bindparam("first_name"),
+                    "last_name": sa.bindparam("last_name"),
+                },
             )
-            session.add(user)
-            try:
-                await session.commit()
-                await session.refresh(user)
-                return user
-            except IntegrityError:
-                # 3) кто-то успел вставить параллельно — откат и перечитываем
-                await session.rollback()
-                user = await session.scalar(sa.select(User).where(User.telegram_id == telegram_id))
-                if not user:
-                    # если ошибка не из-за уникальности, пробрасываем дальше
-                    raise
-                changed = False
-                if user.username != username:
-                    user.username = username
-                    changed = True
-                if user.first_name != first_name:
-                    user.first_name = first_name
-                    changed = True
-                if user.last_name != last_name:
-                    user.last_name = last_name
-                    changed = True
-                if changed:
-                    await session.commit()
-                    await session.refresh(user)
-                return user
+            await session.execute(stmt)
+            await session.commit()
+            # Возвращаем актуальную запись
+            user = await session.scalar(sa.select(User).where(User.telegram_id == telegram_id))
+            assert user is not None
+            return user
 
     async def get_user_by_username(self, username: str) -> Optional[User]:
-        """
-        Возвращает пользователя по username.
-        Поддерживает ввод с @ и без, сравнение регистронезависимое.
-        """
         if not username:
             return None
         uname = username.strip()
@@ -178,7 +133,6 @@ class Repository:
             uname = uname[1:]
         if not uname:
             return None
-
         async with self.sessionmaker() as session:
             return await session.scalar(
                 sa.select(User).where(sa.func.lower(User.username) == uname.lower())
@@ -206,9 +160,9 @@ class Repository:
         async with self.sessionmaker() as session:
             return await session.scalar(
                 sa.select(AdDraft)
-                    .where(AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT)
-                    .order_by(AdDraft.updated_at.desc())
-                    .limit(1)
+                .where(AdDraft.user_id == user_id, AdDraft.status == AdStatusEnum.DRAFT)
+                .order_by(AdDraft.updated_at.desc())
+                .limit(1)
             )
 
     async def create_draft(self, user_id: int, ad_type: str) -> AdDraft:
@@ -247,22 +201,17 @@ class Repository:
         async with self.sessionmaker() as session:
             return await session.scalar(
                 sa.select(AdDraft)
-                    .where(AdDraft.id == draft_id)
-                    .options(selectinload(AdDraft.photos))
+                .where(AdDraft.id == draft_id)
+                .options(selectinload(AdDraft.photos))
             )
 
     async def delete_draft(self, draft_id: int, only_if_status_draft: bool = True) -> bool:
-        """
-        Полностью удаляет черновик и все его фото.
-        Если only_if_status_draft=True — удаляет только если статус=DRAFT.
-        """
         async with self.sessionmaker() as session:
             draft = await session.get(AdDraft, draft_id)
             if not draft:
                 return False
             if only_if_status_draft and draft.status != AdStatusEnum.DRAFT:
                 return False
-            # удалим фото
             await session.execute(sa.delete(AdPhoto).where(AdPhoto.draft_id == draft_id))
             await session.delete(draft)
             await session.commit()
@@ -297,7 +246,6 @@ class Repository:
             session.add(pub)
             await session.commit()
             await session.refresh(pub)
-        # сожжём слот публикации уже после коммита
         await self.consume_publish_slot(user_id)
         return pub
 
@@ -314,22 +262,21 @@ class Repository:
         async with self.sessionmaker() as session:
             res = await session.execute(
                 sa.select(AdPublish, AdDraft)
-                    .join(AdDraft, AdDraft.id == AdPublish.draft_id)
-                    .options(selectinload(AdDraft.photos))  # жадно подгружаем фото
-                    .where(AdPublish.user_id == user_id)
-                    .order_by(AdPublish.id.desc())
+                .join(AdDraft, AdDraft.id == AdPublish.draft_id)
+                .options(selectinload(AdDraft.photos))
+                .where(AdPublish.user_id == user_id)
+                .order_by(AdPublish.id.desc())
             )
             return list(res.all())
 
     async def get_publication_pair(self, publish_id: int) -> Optional[Tuple[AdPublish, AdDraft]]:
-        """Возвращает (AdPublish, AdDraft с фото) либо None."""
         async with self.sessionmaker() as session:
             res = await session.execute(
                 sa.select(AdPublish, AdDraft)
-                    .join(AdDraft, AdDraft.id == AdPublish.draft_id)
-                    .options(selectinload(AdDraft.photos))
-                    .where(AdPublish.id == publish_id)
-                    .limit(1)
+                .join(AdDraft, AdDraft.id == AdPublish.draft_id)
+                .options(selectinload(AdDraft.photos))
+                .where(AdPublish.id == publish_id)
+                .limit(1)
             )
             row = res.first()
             return (row[0], row[1]) if row else None
@@ -367,10 +314,6 @@ class Repository:
         return await self.get_or_create_default_limit(user_id)
 
     async def get_or_create_default_limit(self, user_id: int) -> UserLimit:
-        """
-        Стандарт: квота 1 публикация / 7 дней. Если срок истёк — сбрасываем.
-        Все времена — aware UTC.
-        """
         now = _utcnow()
         async with self.sessionmaker() as session:
             ul = await session.scalar(sa.select(UserLimit).where(UserLimit.user_id == user_id))
@@ -400,7 +343,6 @@ class Repository:
             return ul
 
     async def reset_to_weekly(self, user_id: int, start_from: Optional[datetime] = None) -> UserLimit:
-        """Жёсткий сброс к стандарту 1/неделю."""
         now = _to_aware_utc(start_from) or _utcnow()
         async with self.sessionmaker() as session:
             ul = await session.scalar(sa.select(UserLimit).where(UserLimit.user_id == user_id))
@@ -424,12 +366,10 @@ class Repository:
             await session.refresh(ul)
             return ul
 
-    # совместимость с хендлерами
     async def reset_limit_to_default(self, user_id: int) -> UserLimit:
         return await self.reset_to_weekly(user_id)
 
     async def set_unlimited_month(self, user_id: int) -> UserLimit:
-        """Чистый безлимит на 30 дней (mode='unlimited')."""
         async with self.sessionmaker() as session:
             now = _utcnow()
             ul = await session.scalar(sa.select(UserLimit).where(UserLimit.user_id == user_id))
@@ -446,7 +386,6 @@ class Repository:
             return ul
 
     async def set_quota_month(self, user_id: int, total: int) -> UserLimit:
-        """Квота N объявлений на 30 дней (mode='quota')."""
         async with self.sessionmaker() as session:
             now = _utcnow()
             total = max(1, int(total))
@@ -464,13 +403,6 @@ class Repository:
             return ul
 
     async def add_extra_one(self, user_id: int) -> UserLimit:
-        """
-        Покупка «ещё 1 объявление».
-        Логика:
-          - если период отсутствует/истёк/не quota/квота <= 1 — нормализуем на 30 дней quota;
-          - увеличиваем quota_total на 1;
-          - если до конца периода < 1 дня — продлеваем до 30 дней от сейчас.
-        """
         now = _utcnow()
         async with self.sessionmaker() as session:
             ul = await session.scalar(sa.select(UserLimit).where(UserLimit.user_id == user_id))
@@ -479,7 +411,6 @@ class Repository:
                 session.add(ul)
 
             exp = _to_aware_utc(ul.expires_at)
-
             if exp is None or exp <= now or ul.mode != "quota" or (ul.quota_total or 0) <= 1:
                 ul.mode = "quota"
                 ul.quota_total = max(ul.quota_total or 1, 1)
@@ -500,7 +431,6 @@ class Repository:
             return ul
 
     async def consume_publish_slot(self, user_id: int) -> None:
-        """Отмечает использование слота публикации (кроме безлимита)."""
         async with self.sessionmaker() as session:
             ul = await session.scalar(sa.select(UserLimit).where(UserLimit.user_id == user_id))
             if not ul or ul.mode == "unlimited" or ul.quota_total is None:
@@ -511,20 +441,13 @@ class Repository:
             await session.commit()
 
     async def get_publish_availability(self, user_id: int) -> tuple[bool, int]:
-        """
-        Возвращает (can_publish, seconds_left).
-        seconds_left > 0 только если слот исчерпан и ждём истечения периода.
-        """
         ul = await self.get_or_create_default_limit(user_id)
-        # Безлимит
         if ul.mode == "unlimited" or ul.quota_total is None:
             return True, 0
-
         total = ul.quota_total or 0
         used = ul.quota_used or 0
         if used < total:
             return True, 0
-
         now = _utcnow()
         exp = _to_aware_utc(ul.expires_at)
         left = 0
@@ -551,7 +474,6 @@ class Repository:
             p.file_id = file_id
             await session.commit()
 
-    # совместимость: attach_payment_receipt -> set_payment_file
     async def attach_payment_receipt(self, payment_id: int, file_type: str, file_id: str) -> None:
         await self.set_payment_file(payment_id, file_type=file_type, file_id=file_id)
 
@@ -577,15 +499,9 @@ class Repository:
             await session.commit()
 
     async def apply_payment_effect(self, payment: Payment):
-        """
-        Применяет эффект покупки:
-          - extra      -> add_extra_one
-          - unlimited  -> set_unlimited_month
-          - pin        -> (пока без логики, только approve)
-        """
         if payment.kind == "extra":
             return await self.add_extra_one(payment.user_id)
         if payment.kind == "unlimited":
             return await self.set_unlimited_month(payment.user_id)
-        # kind == "pin" — нет действий в БД
+        # pin — сейчас без эффектов
         return None
